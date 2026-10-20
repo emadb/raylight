@@ -1,3 +1,4 @@
+pub const VIEW_ANGLE: f32 = 66.0;
 pub const WIDTH: usize = 640;
 pub const HEIGHT: usize = 480;
 

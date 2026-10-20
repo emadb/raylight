@@ -6,4 +6,8 @@ impl Map {
     pub fn build(tiles: [[u8; crate::params::MAP_WIDTH];crate::params::MAP_HEIGHT]) -> Self {
         Self { tiles }
     }
+
+    pub fn get(&self, r: usize, c: usize) -> u8 {
+        self.tiles[r][c]
+    }
 }
