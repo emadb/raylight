@@ -42,7 +42,7 @@ fn main() {
             let ray_direction_x = dir_x + plane_x * camera_x;
             let ray_direction_y = dir_y + plane_y * camera_x;
 
-            let distance = find_wall((ray_direction_x, ray_direction_y), &player, &map);
+            let distance = find_wall((ray_direction_x, ray_direction_y), (player.x, player.y), &map);
             println!("D = {distance:?}");
         }
 
@@ -52,16 +52,24 @@ fn main() {
      }
 }
 
-fn find_wall(ray_direction: (f32, f32), player: &Player, map: &Map) -> (f32, f32) {
+fn find_wall((dir_x, dir_y): (f32, f32), (px, py): (u32, u32), map: &Map) -> (f32, f32) {
     let  mut wall_found = false;
-    let mut current_x = player.x as f32;
-    let mut current_y = player.y as f32;
+    let mut current_x = px as f32;
+    let mut current_y = py as f32;
+
+    let slope = dir_y / dir_x;
+
     while !wall_found && current_x < WIDTH as f32 && current_y < HEIGHT as f32 {
+        if slope <= 1.0 {
+            current_x += 1.0;
+            current_y += slope;
+        } else {
+            current_x += 1.0 / slope;
+            current_y += 1.0;
+        }
         let r = current_x.floor() as usize;
         let c = current_y.floor() as usize;
         if map.get(r, c) != 0 { wall_found = true; }
-        current_x += 1.0;
-        current_y += ray_direction.1 / ray_direction.0
     }
 
     (current_x, current_y)
