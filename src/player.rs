@@ -23,13 +23,13 @@ impl Direction {
 }
 
 pub struct Player {
-    pub x: u32,
-    pub y: u32,
+    pub x: f32,
+    pub y: f32,
     pub direction: Direction
 }
 
 impl Player {
     pub fn new(x: u32, y: u32, direction: f64) -> Self {
-        Self { x, y, direction: Direction(direction) }
+        Self { x: x as f32 + 0.5, y: y as f32 + 0.5, direction: Direction(direction) }
     }
 }
