@@ -24,11 +24,11 @@ fn main() {
 
     let k = (VIEW_ANGLE / 2.0).to_radians().tan();
 
-    let dir_x = player.direction.sin();
-    let dir_y = -player.direction.cos();
+    let mut dir_x = player.direction.sin();
+    let mut dir_y = -player.direction.cos();
 
-    let plane_x: f32 = k * player.direction.cos() ;
-    let plane_y: f32 = k * player.direction.sin();
+    let mut plane_x: f32 = k * player.direction.cos() ;
+    let mut plane_y: f32 = k * player.direction.sin();
 
     while window.is_open() && !window.is_key_down(Key::Escape) {
         video_buffer.fill(0);
@@ -60,13 +60,46 @@ fn main() {
             .unwrap();
 
         let move_speed = 0.08; //60.0 * 5.0; //the constant value is in squares/second
-        let rot_s: f32 = 0.04; //the constant value is in radians/second
+        let rotation_speed: f32 = 0.04; //the constant value is in radians/second
 
         if window.is_key_down(Key::Up) {
             let xx = player.x + dir_x * move_speed;
             let yy = player.y + dir_y * move_speed;
             if map.get(xx.floor() as i32, player.y.floor() as i32) == 0 { player.x += dir_x * move_speed}
             if map.get(player.x.floor() as i32, yy.floor() as i32) == 0 { player.y += dir_y * move_speed}
+        }
+
+        if window.is_key_down(Key::Down) {
+            let xx = player.x - dir_x * move_speed;
+            let yy = player.y - dir_y * move_speed;
+            if map.get(xx.floor() as i32, player.y.floor() as i32) == 0 { player.x -= dir_x * move_speed}
+            if map.get(player.x.floor() as i32, yy.floor() as i32) == 0 { player.y -= dir_y * move_speed}
+        }
+
+        if window.is_key_down(Key::Left) {
+            let cos = rotation_speed.cos();
+            let sin = rotation_speed.sin();
+
+            let old_dir_x = dir_x;
+            dir_x = dir_x * cos + dir_y * sin;
+            dir_y = -old_dir_x * sin + dir_y * cos;
+
+            let old_plane_x = plane_x;
+            plane_x = plane_x * cos + plane_y * sin;
+            plane_y = -old_plane_x * sin + plane_y * cos;
+        }
+
+        if window.is_key_down(Key::Right) {
+            let cos = rotation_speed.cos();
+            let sin = rotation_speed.sin();
+
+            let old_dir_x = dir_x;
+            dir_x = dir_x * cos - dir_y * sin;
+            dir_y = old_dir_x * sin + dir_y * cos;
+
+            let old_plane_x = plane_x;
+            plane_x = plane_x * cos - plane_y * sin;
+            plane_y = old_plane_x * sin + plane_y * cos;
         }
      }
 }
