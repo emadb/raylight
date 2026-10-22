@@ -2,25 +2,24 @@ use minifb::{Key, Window, WindowOptions};
 use raylight::dda::Hit;
 use raylight::map::Map;
 use raylight::params::{HEIGHT, MAP, WIDTH};
-use raylight::player::{Player};
-use raylight::textures::{Textures, TEX_SIZE};
+use raylight::player::Player;
+use raylight::textures::{TEX_SIZE, Textures};
 
 fn main() {
-
     let map = Map::build(MAP);
     let mut player = Player::new(22, 12, 0.0);
     let textures = Textures::load_textures();
     let mut video_buffer: Vec<u32> = vec![0; WIDTH * HEIGHT];
 
     let mut window = Window::new(
-            "Test - ESC to exit",
-            WIDTH,
-            HEIGHT,
-            WindowOptions::default(),
-        )
-        .unwrap_or_else(|e| {
-            panic!("{}", e);
-        });
+        "Test - ESC to exit",
+        WIDTH,
+        HEIGHT,
+        WindowOptions::default(),
+    )
+    .unwrap_or_else(|e| {
+        panic!("{}", e);
+    });
 
     window.set_target_fps(60);
 
@@ -28,7 +27,12 @@ fn main() {
         video_buffer.fill(0);
 
         for x in 0..WIDTH {
-            let Hit { side, dist, u, cell } = raylight::dda::find_wall(&player, x, &map);
+            let Hit {
+                side,
+                dist,
+                u,
+                cell,
+            } = raylight::dda::find_wall(&player, x, &map);
 
             let height: i32 = ((HEIGHT as f32 / dist) as i32).max(1);
             let top = -height / 2 + (HEIGHT as i32) / 2;
@@ -55,9 +59,17 @@ fn main() {
             .update_with_buffer(&video_buffer, WIDTH, HEIGHT)
             .unwrap();
 
-        if window.is_key_down(Key::Up) { player.move_up(&map); }
-        if window.is_key_down(Key::Down) { player.move_down(&map); }
-        if window.is_key_down(Key::Left) { player.rotate_right(); }
-        if window.is_key_down(Key::Right) { player.rotate_left(); }
-     }
+        if window.is_key_down(Key::Up) {
+            player.move_up(&map);
+        }
+        if window.is_key_down(Key::Down) {
+            player.move_down(&map);
+        }
+        if window.is_key_down(Key::Left) {
+            player.rotate_right();
+        }
+        if window.is_key_down(Key::Right) {
+            player.rotate_left();
+        }
+    }
 }

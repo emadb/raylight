@@ -5,71 +5,85 @@ const COLS: usize = 10;
 const ROWS: usize = 11;
 
 pub struct Tile {
-  pub index: usize,
-  /// Row-major, TEX_SIZE * TEX_SIZE pixels, 0x00RRGGBB.
-  pub pixels: Vec<u32>,
+    pub index: usize,
+    /// Row-major, TEX_SIZE * TEX_SIZE pixels, 0x00RRGGBB.
+    pub pixels: Vec<u32>,
 }
 
 pub struct Textures {
-  images: Vec<Tile>,
+    images: Vec<Tile>,
 }
 
 struct Sheet {
-  width: usize,
-  pixels: Vec<u32>,
+    width: usize,
+    pixels: Vec<u32>,
 }
 
 fn decode(bytes: &[u8]) -> Sheet {
-  let mut decoder = png::Decoder::new(std::io::Cursor::new(bytes));
-  decoder.set_transformations(png::Transformations::EXPAND);
+    let mut decoder = png::Decoder::new(std::io::Cursor::new(bytes));
+    decoder.set_transformations(png::Transformations::EXPAND);
 
-  let mut reader = decoder.read_info().expect("invalid texture sheet");
-  let mut buf = vec![0; reader.output_buffer_size().expect("texture sheet too large")];
-  let info = reader.next_frame(&mut buf).expect("cannot decode texture sheet");
+    let mut reader = decoder.read_info().expect("invalid texture sheet");
+    let mut buf = vec![
+        0;
+        reader
+            .output_buffer_size()
+            .expect("texture sheet too large")
+    ];
+    let info = reader
+        .next_frame(&mut buf)
+        .expect("cannot decode texture sheet");
 
-  let channels = info.color_type.samples();
-  let pixels = buf[..info.buffer_size()]
-    .chunks_exact(channels)
-    .map(|p| u32::from_be_bytes([0, p[0], p[1], p[2]]))
-    .collect();
+    let channels = info.color_type.samples();
+    let pixels = buf[..info.buffer_size()]
+        .chunks_exact(channels)
+        .map(|p| u32::from_be_bytes([0, p[0], p[1], p[2]]))
+        .collect();
 
-  Sheet { width: info.width as usize, pixels }
+    Sheet {
+        width: info.width as usize,
+        pixels,
+    }
 }
 
 fn tile(sheet: &Sheet, index: usize) -> Tile {
-  let x0 = (index % COLS) * TEX_SIZE;
-  let y0 = (index / COLS) * TEX_SIZE;
+    let x0 = (index % COLS) * TEX_SIZE;
+    let y0 = (index / COLS) * TEX_SIZE;
 
-  let pixels = (y0..y0 + TEX_SIZE)
-    .flat_map(|y| {
-      let start = y * sheet.width + x0;
-      sheet.pixels[start..start + TEX_SIZE].iter().copied()
-    })
-    .collect();
+    let pixels = (y0..y0 + TEX_SIZE)
+        .flat_map(|y| {
+            let start = y * sheet.width + x0;
+            sheet.pixels[start..start + TEX_SIZE].iter().copied()
+        })
+        .collect();
 
-  Tile { index, pixels }
+    Tile { index, pixels }
 }
 
 impl Textures {
-  pub fn load_textures() -> Self {
-    let sheet = decode(SHEET);
-    assert_eq!(sheet.width, COLS * TEX_SIZE, "unexpected sheet width");
-    assert_eq!(sheet.pixels.len(), COLS * ROWS * TEX_SIZE * TEX_SIZE, "unexpected sheet size");
+    pub fn load_textures() -> Self {
+        let sheet = decode(SHEET);
+        assert_eq!(sheet.width, COLS * TEX_SIZE, "unexpected sheet width");
+        assert_eq!(
+            sheet.pixels.len(),
+            COLS * ROWS * TEX_SIZE * TEX_SIZE,
+            "unexpected sheet size"
+        );
 
-    let images = (0..COLS * ROWS).map(|i| tile(&sheet, i)).collect();
+        let images = (0..COLS * ROWS).map(|i| tile(&sheet, i)).collect();
 
-    Self { images }
-  }
+        Self { images }
+    }
 
-  pub fn get(&self, index: usize) -> &Tile {
-    self.images.get(index).unwrap()
-  }
+    pub fn get(&self, index: usize) -> &Tile {
+        self.images.get(index).unwrap()
+    }
 
-  pub fn len(&self) -> usize {
-    self.images.len()
-  }
+    pub fn len(&self) -> usize {
+        self.images.len()
+    }
 
-  pub fn is_empty(&self) -> bool {
-    self.images.is_empty()
-  }
+    pub fn is_empty(&self) -> bool {
+        self.images.is_empty()
+    }
 }

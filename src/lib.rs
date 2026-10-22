@@ -1,5 +1,5 @@
-pub mod player;
+pub mod dda;
 pub mod map;
 pub mod params;
-pub mod dda;
+pub mod player;
 pub mod textures;
