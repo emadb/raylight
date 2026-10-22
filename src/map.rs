@@ -8,8 +8,8 @@ impl Map {
     }
 
     pub fn get(&self, x: i32, y: i32) -> u8 {
-        let r = y as usize; //.floor() as usize;
-        let c = x as usize; //.floor() as usize;
+        let r = y as usize;
+        let c = x as usize;
         self.tiles[r][c]
     }
 }
