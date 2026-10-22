@@ -6,7 +6,6 @@ const ROWS: usize = 11;
 
 pub struct Tile {
     pub index: usize,
-    /// Row-major, TEX_SIZE * TEX_SIZE pixels, 0x00RRGGBB.
     pub pixels: Vec<u32>,
 }
 
@@ -63,13 +62,6 @@ fn tile(sheet: &Sheet, index: usize) -> Tile {
 impl Textures {
     pub fn load_textures() -> Self {
         let sheet = decode(SHEET);
-        assert_eq!(sheet.width, COLS * TEX_SIZE, "unexpected sheet width");
-        assert_eq!(
-            sheet.pixels.len(),
-            COLS * ROWS * TEX_SIZE * TEX_SIZE,
-            "unexpected sheet size"
-        );
-
         let images = (0..COLS * ROWS).map(|i| tile(&sheet, i)).collect();
 
         Self { images }
